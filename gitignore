@@ -1,0 +1,16 @@
+# Sensible Daten — niemals in Git!
+.env
+*.env
+
+# Backup-Daten
+backups/
+
+# Datenbank
+db/
+
+# Paperless Daten
+data/
+media/
+
+# macOS
+.DS_Store

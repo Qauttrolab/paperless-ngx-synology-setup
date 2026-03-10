@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paperless-ngx — Synology NAS Setup Anleitung</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #1a1f2e, #2d3561); padding: 40px 20px; text-align: center; border-bottom: 2px solid #4f6ef7; }
+  .header .logo { font-size: 2.8em; font-weight: 900; letter-spacing: -1px; }
+  .header .logo span { color: #c0392b; }
+  .header .logo em { color: #4f6ef7; font-style: normal; }
+  .header .subtitle { color: #8892b0; font-size: 1.1em; margin-top: 8px; }
+  .header .badges { margin-top: 15px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .badge { background: #1e2a45; border: 1px solid #4f6ef7; border-radius: 20px; padding: 4px 12px; font-size: 0.85em; color: #7eb8f7; }
+  .container { max-width: 960px; margin: 0 auto; padding: 30px 20px; }
+  .toc { background: #1a1f2e; border: 1px solid #2d3561; border-radius: 12px; padding: 20px; margin-bottom: 30px; }
+  .toc h2 { color: #4f6ef7; margin-bottom: 15px; font-size: 1.1em; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin: 6px 0; }
+  .toc a { color: #7eb8f7; text-decoration: none; }
+  .toc a:hover { color: #fff; }
+  .section { background: #1a1f2e; border: 1px solid #2d3561; border-radius: 12px; padding: 25px; margin-bottom: 25px; }
+  .section h2 { color: #4f6ef7; font-size: 1.4em; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+  .section h3 { color: #7eb8f7; font-size: 1.05em; margin: 20px 0 10px; }
+  .section p { color: #a0aec0; margin: 10px 0; }
+  .step-num { background: #4f6ef7; color: #fff; border-radius: 50%; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85em; font-weight: bold; flex-shrink: 0; }
+  .code-block { position: relative; background: #0d1117; border: 1px solid #2d3561; border-radius: 8px; padding: 15px; margin: 10px 0; overflow-x: auto; }
+  .code-block pre { font-family: 'Courier New', monospace; font-size: 0.8em; color: #e2e8f0; white-space: pre; word-break: normal; }
+  .copy-btn { position: absolute; top: 8px; right: 8px; background: #2d3561; border: 1px solid #4f6ef7; color: #7eb8f7; border-radius: 6px; padding: 4px 10px; font-size: 0.75em; cursor: pointer; transition: all 0.2s; z-index: 1; }
+  .copy-btn:hover { background: #4f6ef7; color: #fff; }
+  .copy-btn.copied { background: #22c55e; border-color: #22c55e; color: #fff; }
+  .info-box { border-left: 4px solid #4f6ef7; border-radius: 0 8px 8px 0; padding: 12px 15px; margin: 10px 0; background: #1e3a5f; }
+  .info-box.success { background: #1a3a2a; border-left-color: #22c55e; }
+  .info-box.warning { background: #3a2a1a; border-left-color: #f59e0b; }
+  .info-box.danger { background: #3a1a1a; border-left-color: #c0392b; }
+  .info-box p { color: #a0aec0; margin: 4px 0; font-size: 0.9em; }
+  .info-box strong { color: #e0e0e0; }
+  .table-wrap { overflow-x: auto; margin: 15px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+  th { background: #2d3561; color: #7eb8f7; padding: 10px 15px; text-align: left; }
+  td { padding: 10px 15px; border-bottom: 1px solid #2d3561; color: #a0aec0; }
+  tr:last-child td { border-bottom: none; }
+  .summary-box { background: linear-gradient(135deg, #1a2a3a, #1a3a2a); border: 1px solid #22c55e; border-radius: 12px; padding: 25px; margin-bottom: 25px; }
+  .summary-box h2 { color: #22c55e; margin-bottom: 15px; }
+  .footer { text-align: center; padding: 30px; color: #4a5568; font-size: 0.85em; border-top: 1px solid #2d3561; margin-top: 30px; }
+  code { color: #7eb8f7; background: #1e2a45; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+  ul { padding-left: 20px; color: #a0aec0; }
+  ul li { margin: 6px 0; }
+  ol { padding-left: 20px; color: #a0aec0; }
+  ol li { margin: 8px 0; }
+  .tag { display: inline-block; background: #1e2a45; border: 1px solid #2d3561; border-radius: 4px; padding: 2px 8px; font-size: 0.8em; color: #7eb8f7; margin: 2px; }
+  .option-label { display: inline-block; background: #2d3561; color: #fff; border-radius: 6px; padding: 3px 10px; font-size: 0.85em; font-weight: bold; margin-right: 8px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo"><span>Paperless</span> <em>NGX</em></div>
+  <div style="margin-top:8px; font-size:1.1em; color:#fff; font-weight:600;">Paperless-ngx — Synology NAS Setup Anleitung</div>
+  <div class="subtitle">10 Container · Grafana · Prometheus · Automatisches Backup · 4 Dateinamens-Varianten</div>
+  <div class="badges">
+    <span class="badge">paperless-ngx 2.20</span>
+    <span class="badge">PostgreSQL 18</span>
+    <span class="badge">Valkey 9</span>
+    <span class="badge">Grafana 12</span>
+    <span class="badge">Prometheus</span>
+    <span class="badge">Ofelia</span>
+    <span class="badge">Gotenberg</span>
+    <span class="badge">Tika</span>
+    <span class="badge">Synology DSM</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="toc">
+    <h2>📋 Inhaltsverzeichnis</h2>
+    <ol>
+      <li><a href="#architektur">Architektur &amp; Container-Übersicht</a></li>
+      <li><a href="#vorbereitung">Vorbereitung — Ordner &amp; Berechtigungen</a></li>
+      <li><a href="#prometheus-config">Prometheus Konfiguration erstellen</a></li>
+      <li><a href="#env">ENV Datei erstellen</a></li>
+      <li><a href="#backup">Backup-Skript erstellen</a></li>
+      <li><a href="#stack-starten">Stack starten &amp; prüfen</a></li>
+      <li><a href="#grafana">Grafana einrichten</a></li>
+      <li><a href="#ordnerstruktur">Dateinamens-Format Varianten A–D</a></li>
+      <li><a href="#yaml">Komplette docker-compose.yml</a></li>
+      <li><a href="#nuetzliche-befehle">Nützliche Befehle</a></li>
+    </ol>
+  </div>
+
+  <!-- 1. ARCHITEKTUR -->
+  <div class="section" id="architektur">
+    <h2><span class="step-num">1</span> Architektur &amp; Container-Übersicht</h2>
+    <p>Das Setup besteht aus <strong>10 Containern</strong> die in einem internen Docker-Netzwerk <code>paperless_network</code> kommunizieren. Nur die nötigen Ports werden nach außen exponiert.</p>
+    <div class="table-wrap" style="margin-top:15px;">
+      <table>
+        <tr><th>#</th><th>Container</th><th>Image</th><th>Port</th><th>Funktion</th></tr>
+        <tr><td>1</td><td><code>paperless-redis</code></td><td>valkey/valkey:9</td><td>intern</td><td>Message Broker / Queue</td></tr>
+        <tr><td>2</td><td><code>paperless-db</code></td><td>postgres:18</td><td>intern</td><td>Datenbank (Metadaten)</td></tr>
+        <tr><td>3</td><td><code>paperless</code></td><td>paperless-ngx:2.20</td><td>8090</td><td>Hauptanwendung + Web UI</td></tr>
+        <tr><td>4</td><td><code>paperless-gotenberg</code></td><td>gotenberg:8</td><td>3005</td><td>PDF-Konvertierung</td></tr>
+        <tr><td>5</td><td><code>paperless-tika</code></td><td>apache/tika:3.2.3.0</td><td>intern</td><td>Office Dokument-Analyse</td></tr>
+        <tr><td>6</td><td><code>paperless-ofelia</code></td><td>mcuadros/ofelia:0.3</td><td>intern</td><td>Cron-Job Scheduler</td></tr>
+        <tr><td>7</td><td><code>paperless-backup-runner</code></td><td>alpine:3.15</td><td>intern</td><td>Automatisches Backup täglich 20:10</td></tr>
+        <tr><td>8</td><td><code>paperless-redis-exporter</code></td><td>redis_exporter:v1.81.0</td><td>intern</td><td>Metriken für Prometheus</td></tr>
+        <tr><td>9</td><td><code>paperless-grafana</code></td><td>grafana/grafana:12.4</td><td>3001</td><td>Dashboard &amp; Visualisierung</td></tr>
+        <tr><td>10</td><td><code>paperless-prometheus</code></td><td>prom/prometheus:v3.10.0</td><td>intern</td><td>Metriken-Sammler</td></tr>
+      </table>
+    </div>
+    <div class="info-box" style="margin-top:15px;">
+      <p><strong>Startabhängigkeiten:</strong> <code>paperless</code> startet erst wenn <code>db</code> und <code>broker</code> healthy sind. <code>ofelia</code> startet erst wenn <code>backup-runner</code> läuft.</p>
+    </div>
+  </div>
+
+  <!-- 2. VORBEREITUNG -->
+  <div class="section" id="vorbereitung">
+    <h2><span class="step-num">2</span> Vorbereitung — Ordner &amp; Berechtigungen</h2>
+
+    <h3>2.1 Alle Ordner auf einmal erstellen (SSH)</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>mkdir -p /volume1/docker/paperless/{redis,db,data,media,export,consume,grafana,prometheus,scripts,backups}</pre>
+    </div>
+
+    <h3>2.2 Grafana Berechtigung setzen</h3>
+    <p>Grafana läuft intern als User <code>472</code> — ohne diesen Schritt startet Grafana nicht und wirft Permission-Fehler!</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>chown -R 472:472 /volume1/docker/paperless/grafana
+chmod -R 775 /volume1/docker/paperless/grafana</pre>
+    </div>
+    <p>Prüfen ob korrekt gesetzt:</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>ls -la /volume1/docker/paperless/ | grep grafana</pre>
+    </div>
+    <div class="info-box success">
+      <p><strong>Erwartete Ausgabe:</strong> <code>drwxrwxr-x  472  472  grafana</code></p>
+    </div>
+
+    <h3>2.3 Eigene UID ermitteln</h3>
+    <p>Diese UID muss in der <code>docker-compose.yml</code> bei <code>user:</code> und <code>USERMAP_UID</code> eingetragen werden.</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>id DEINUSERNAME</pre>
+    </div>
+    <div class="info-box warning">
+      <p><strong>DSM → Systemsteuerung → Benutzer → Benutzer anklicken → Info</strong> zeigt ebenfalls die UID.</p>
+    </div>
+  </div>
+
+  <!-- 3. PROMETHEUS -->
+  <div class="section" id="prometheus-config">
+    <h2><span class="step-num">3</span> Prometheus Konfiguration erstellen</h2>
+    <p>Datei erstellen: <code>/volume1/docker/paperless/prometheus/prometheus.yml</code></p>
+    <p>DSM → File Station → <code>prometheus</code> Ordner → Neue Datei: <code>prometheus.yml</code></p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>global:
+  scrape_interval: 15s
+scrape_configs:
+  - job_name: 'paperless-monitoring'
+    static_configs:
+      - targets: ['paperless-redis-exporter:9121']</pre>
+    </div>
+  </div>
+
+  <!-- 4. ENV -->
+  <div class="section" id="env">
+    <h2><span class="step-num">4</span> .env Datei erstellen</h2>
+    <p>Die <code>.env</code> Datei muss im <strong>gleichen Ordner</strong> wie die <code>docker-compose.yml</code> liegen: <code>/volume1/docker/paperless/.env</code></p>
+    <div class="info-box warning">
+      <p><strong>DSM → File Station:</strong> Einstellungen → "Versteckte Dateien anzeigen" aktivieren, dann neue Datei <code>.env</code> (Punkt am Anfang!) erstellen.</p>
+    </div>
+    <h3>Inhalt der .env Datei:</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>POSTGRES_PASSWORD=SICHERES_PASSWORT_HIER
+PAPERLESS_DBPASS=GLEICHES_PASSWORT_WIE_OBEN
+PAPERLESS_SECRET_KEY=LANGEN_ZUFAELLIGEN_KEY_HIER
+GF_SECURITY_ADMIN_PASSWORD=GRAFANA_PASSWORT_HIER</pre>
+    </div>
+    <h3>Secret Key generieren (SSH):</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>openssl rand -base64 50</pre>
+    </div>
+    <div class="info-box danger">
+      <p><strong>⚠️ PAPERLESS_SECRET_KEY</strong> niemals nach erstem Start ändern!</p>
+      <p><strong>⚠️ POSTGRES_PASSWORD</strong> und <strong>PAPERLESS_DBPASS</strong> müssen identisch sein!</p>
+      <p><strong>⚠️ .env Datei</strong> niemals teilen oder in Git einchecken!</p>
+    </div>
+    <h3>.env korrekt gelesen prüfen:</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>docker compose config | grep PASSWORD</pre>
+    </div>
+  </div>
+
+  <!-- 5. BACKUP -->
+  <div class="section" id="backup">
+    <h2><span class="step-num">5</span> Backup-Skript erstellen</h2>
+    <p>Datei erstellen: <code>/volume1/docker/paperless/scripts/backup.sh</code></p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>#!/bin/bash
+set -e
+
+# --- LOGGING (alle Ausgaben in Logdatei + Konsole) ---
+exec &gt; &gt;(tee -a "/backup/backup.log") 2&gt;&amp;1
+
+# --- KONFIGURATION ---
+BACKUP_BASE_DIR="/backup"
+PAPERLESS_DATA_DIR="/paperless_data"
+LATEST_LINK="${BACKUP_BASE_DIR}/latest"
+RETENTION_DAYS=30
+
+# Container Namen
+PG_CONTAINER="paperless-db"
+WEBSERVER_CONTAINER="paperless"
+PG_USER="paperless"
+PG_DB="paperless"
+
+echo "--- Backup Start: $(date) ---"
+
+# 1. Verzeichnis erstellen
+DATE_STAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+BACKUP_DIR="${BACKUP_BASE_DIR}/${DATE_STAMP}"
+mkdir -p "${BACKUP_DIR}"
+
+# 2. Versionsinfos speichern
+echo "Speichere Versionen..."
+VERSION_FILE="${BACKUP_DIR}/restore_info.txt"
+echo "Backup Timestamp: ${DATE_STAMP}" &gt; "${VERSION_FILE}"
+
+# Postgres Version auslesen
+PG_VER=$(docker exec "${PG_CONTAINER}" psql -U "${PG_USER}" -d "${PG_DB}" -c "SHOW server_version;" -t | xargs)
+echo "PostgreSQL Version: ${PG_VER}" &gt;&gt; "${VERSION_FILE}"
+
+# 3. Datenbank Dump
+echo "Erstelle DB Dump..."
+docker exec "${PG_CONTAINER}" pg_dump -U "${PG_USER}" -d "${PG_DB}" &gt; "${BACKUP_DIR}/paperless-db.sql"
+
+if [ ! -s "${BACKUP_DIR}/paperless-db.sql" ]; then
+    echo "FEHLER: DB Dump ist leer — Backup abgebrochen!"
+    rm -rf "${BACKUP_DIR}"
+    exit 1
+fi
+
+# 4. Paperless Exporter (sichert Dokumente + Manifeste)
+# WICHTIG: python3 manage.py ist zwingend erforderlich!
+echo "Starte Paperless Exporter..."
+docker exec "${WEBSERVER_CONTAINER}" python3 manage.py document_exporter ../export
+
+# 5. Rsync (kopiert exportierte Daten ins Backup, Hardlinks sparen Speicherplatz)
+echo "Synchronisiere Dateien..."
+LINK_DEST_OPTION=""
+if [ -d "${LATEST_LINK}" ]; then
+  LINK_DEST_OPTION="--link-dest=${LATEST_LINK}/documents"
+fi
+rsync -a --delete ${LINK_DEST_OPTION} "${PAPERLESS_DATA_DIR}/export/" "${BACKUP_DIR}/documents/"
+
+# 6. Symlink auf das neueste Backup setzen
+ln -snf "${BACKUP_DIR}" "${LATEST_LINK}"
+
+# 7. Aufräumen (alte Backups löschen, || true verhindert Abbruch wenn nichts zu löschen)
+echo "Lösche Backups älter als ${RETENTION_DAYS} Tage..."
+find "${BACKUP_BASE_DIR}" -maxdepth 1 -type d -not -name "latest" -mtime +${RETENTION_DAYS} -exec rm -rf {} \; || true
+
+echo "--- Backup Fertig: $(date) ---"
+
+</pre>
+    </div>
+    <h3>Ausführbar machen (SSH):</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>chmod +x /volume1/docker/paperless/scripts/backup.sh</pre>
+    </div>
+    <h3>Backup manuell testen:</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>docker exec paperless-backup-runner /bin/bash /scripts/backup.sh</pre>
+    </div>
+    <h3>Backup Log prüfen:</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>cat /volume1/docker/paperless/backups/backup.log</pre>
+    </div>
+    <h3>Backup-Struktur:</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>/volume1/docker/paperless/backups/
+├── 2024-03-15_20-10-00/
+│   ├── paperless-db.sql     ← Datenbank-Dump
+│   ├── restore_info.txt     ← Versionsinfos für Restore
+│   └── documents/           ← Alle Dokumente + Manifeste
+├── 2024-03-16_20-10-00/
+├── latest -&gt; 2024-03-16_20-10-00  ← Symlink neuestes Backup
+└── backup.log               ← Alle Backup-Logs</pre>
+    </div>
+    <div class="info-box warning">
+      <p><strong>⚠️</strong> Backups älter als 30 Tage werden automatisch gelöscht.</p>
+      <p><strong>⚠️</strong> Backup liegt auf gleicher Disk wie Daten — externes Backup zusätzlich empfohlen!</p>
+    </div>
+  </div>
+
+  <!-- 6. STACK STARTEN -->
+  <div class="section" id="stack-starten">
+    <h2><span class="step-num">6</span> Stack starten &amp; prüfen</h2>
+    <h3>Stack starten:</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>cd /volume1/docker/paperless
+docker compose up -d</pre>
+    </div>
+    <h3>Status prüfen:</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>docker compose ps</pre>
+    </div>
+    <div class="info-box success">
+      <p><strong>Alle Container sollten "running" zeigen.</strong> <code>db</code> und <code>broker</code> zeigen zusätzlich "(healthy)".</p>
+    </div>
+    <h3>Admin-User anlegen:</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>docker exec -it paperless python3 manage.py createsuperuser</pre>
+    </div>
+    <div class="table-wrap" style="margin-top:15px;">
+      <table>
+        <tr><th>Service</th><th>URL</th></tr>
+        <tr><td>Paperless UI</td><td><code>http://NAS-IP:8090</code></td></tr>
+        <tr><td>Grafana UI</td><td><code>http://NAS-IP:3001</code></td></tr>
+        <tr><td>Gotenberg</td><td><code>http://NAS-IP:3005</code></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 7. GRAFANA -->
+  <div class="section" id="grafana">
+    <h2><span class="step-num">7</span> Grafana einrichten</h2>
+    <h3>A) Prometheus als Datenquelle hinzufügen:</h3>
+    <ol>
+      <li>Grafana öffnen: <code>http://NAS-IP:3001</code> — Login: <code>admin</code> / Grafana-Passwort aus .env</li>
+      <li>Links im Menü: <strong>Connections → Data sources</strong></li>
+      <li>Oben rechts: <strong>"Add new data source"</strong></li>
+      <li><strong>"Prometheus"</strong> auswählen</li>
+      <li>URL eintragen: <code>http://paperless-prometheus:9090</code></li>
+      <li>Ganz unten: <strong>"Save &amp; test"</strong> klicken</li>
+    </ol>
+    <div class="info-box success">
+      <p><strong>Grüne Meldung "Successfully queried"</strong> = Verbindung korrekt!</p>
+    </div>
+    <h3>B) Redis Dashboard importieren:</h3>
+    <ol>
+      <li>Links im Menü: <strong>Dashboards → New → Import</strong></li>
+      <li>Bei "Import via grafana.com" eingeben: <code>763</code></li>
+      <li><strong>"Load"</strong> klicken</li>
+      <li>Bei "Prometheus" die soeben angelegte Datenquelle auswählen</li>
+      <li><strong>"Import"</strong> klicken — Dashboard öffnet sich automatisch</li>
+    </ol>
+    <h3>C) Als Home Dashboard setzen:</h3>
+    <ol>
+      <li>Das importierte Dashboard öffnen</li>
+      <li>Oben rechts auf das <strong>Stern-Symbol ★</strong> klicken</li>
+      <li>Oben rechts: <strong>Profil-Icon → Profile</strong></li>
+      <li><strong>Preferences → Home Dashboard</strong> → Redis-Dashboard auswählen → <strong>"Save"</strong></li>
+    </ol>
+  </div>
+
+  <!-- 8. ORDNERSTRUKTUR -->
+  <div class="section" id="ordnerstruktur">
+    <h2><span class="step-num">8</span> Dateinamens-Format Varianten A–D</h2>
+    <p>In der <code>docker-compose.yml</code> die gewünschte Option einkommentieren, andere auskommentieren. Danach:</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>docker exec -it paperless python3 manage.py document_renamer</pre>
+    </div>
+
+    <div class="table-wrap" style="margin-top:15px;">
+      <table>
+        <tr><th>Option</th><th>Struktur</th><th>Empfehlung</th></tr>
+        <tr><td><span class="option-label">A</span></td><td><code>Besitzer/Korrespondent/Jahr/Datum - Titel</code></td><td>✅ Empfohlen — simpel &amp; robust</td></tr>
+        <tr><td><span class="option-label">B</span></td><td><code>Besitzer/Korrespondent/Dokumententyp/Datum - Titel</code></td><td>Wenn Typ wichtiger als Jahr</td></tr>
+        <tr><td><span class="option-label">C</span></td><td><code>Besitzer/Korrespondent/Dokumententyp/Jahr/Datum - Titel</code></td><td>Detaillierteste einfache Struktur</td></tr>
+        <tr><td><span class="option-label">D</span></td><td><code>Besitzer/Thema-Tag/Korrespondent/Jahr/Datum - Typ - Titel</code></td><td>Tag als Ordner — wartungsintensiv</td></tr>
+      </table>
+    </div>
+
+    <h3><span class="option-label">A</span> Besitzer / Korrespondent / Jahr / Datum - Titel</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>PAPERLESS_FILENAME_FORMAT: "{% if owner_username %}{{ owner_username }}{% else %}gemeinsam{% endif %}/{% if correspondent %}{{ correspondent }}{% else %}Allgemein{% endif %}/{{ created_year }}/{{ created }} - {{ title }}"</pre>
+    </div>
+
+    <h3><span class="option-label">B</span> Besitzer / Korrespondent / Dokumententyp / Datum - Titel</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>PAPERLESS_FILENAME_FORMAT: "{% if owner_username %}{{ owner_username }}{% else %}gemeinsam{% endif %}/{% if correspondent %}{{ correspondent }}{% else %}Allgemein{% endif %}/{% if document_type %}{{ document_type }}{% else %}Allgemein{% endif %}/{{ created }} - {{ title }}"</pre>
+    </div>
+
+    <h3><span class="option-label">C</span> Besitzer / Korrespondent / Dokumententyp / Jahr / Datum - Titel</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>PAPERLESS_FILENAME_FORMAT: "{% if owner_username %}{{ owner_username }}{% else %}gemeinsam{% endif %}/{% if correspondent %}{{ correspondent }}{% else %}Allgemein{% endif %}/{% if document_type %}{{ document_type }}{% else %}Allgemein{% endif %}/{{ created_year }}/{{ created }} - {{ title }}"</pre>
+    </div>
+
+    <h3><span class="option-label">D</span> Besitzer / Thema-Tag / Korrespondent / Jahr / Datum - Typ - Titel</h3>
+    <p>Verfügbare Themen-Tags (Reihenfolge = Priorität):</p>
+    <div style="margin: 10px 0;">
+      <span class="tag">Dokumente</span><span class="tag">Gemeinde</span><span class="tag">Steuer</span><span class="tag">Recht</span><span class="tag">Finanzen</span>
+      <span class="tag">Versicherung</span><span class="tag">Gesundheit</span><span class="tag">Arbeit</span><span class="tag">IT</span><span class="tag">Geräte</span>
+      <span class="tag">Fuhrpark</span><span class="tag">Wohnen</span><span class="tag">Nebenkosten</span><span class="tag">Handwerk</span><span class="tag">Garten</span>
+      <span class="tag">Reise</span><span class="tag">Sport</span><span class="tag">Spenden</span><span class="tag">Kita</span><span class="tag">Schule</span>
+      <span class="tag">Bildung</span><span class="tag">Bücher</span><span class="tag">Studium</span><span class="tag">Pflege</span><span class="tag">Rente</span>
+      <span class="tag">Abos</span><span class="tag">Haushalt</span><span class="tag">Allgemein (Fallback)</span>
+    </div>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>PAPERLESS_FILENAME_FORMAT: "{% if owner_username %}{{ owner_username }}{% else %}gemeinsam{% endif %}/{% if 'Dokumente' in tag_name_list %}Dokumente{% elif 'Gemeinde' in tag_name_list %}Gemeinde{% elif 'Steuer' in tag_name_list %}Steuer{% elif 'Recht' in tag_name_list %}Recht{% elif 'Finanzen' in tag_name_list %}Finanzen{% elif 'Versicherung' in tag_name_list %}Versicherung{% elif 'Gesundheit' in tag_name_list %}Gesundheit{% elif 'Arbeit' in tag_name_list %}Arbeit{% elif 'IT' in tag_name_list %}IT{% elif 'Geräte' in tag_name_list %}Geräte{% elif 'Fuhrpark' in tag_name_list %}Fuhrpark{% elif 'Wohnen' in tag_name_list %}Wohnen{% elif 'Nebenkosten' in tag_name_list %}Nebenkosten{% elif 'Handwerk' in tag_name_list %}Handwerk{% elif 'Garten' in tag_name_list %}Garten{% elif 'Reise' in tag_name_list %}Reise{% elif 'Sport' in tag_name_list %}Sport{% elif 'Spenden' in tag_name_list %}Spenden{% elif 'Kita' in tag_name_list %}Kita{% elif 'Schule' in tag_name_list %}Schule{% elif 'Bildung' in tag_name_list %}Bildung{% elif 'Bücher' in tag_name_list %}Bücher{% elif 'Studium' in tag_name_list %}Studium{% elif 'Pflege' in tag_name_list %}Pflege{% elif 'Rente' in tag_name_list %}Rente{% elif 'Abos' in tag_name_list %}Abos{% elif 'Haushalt' in tag_name_list %}Haushalt{% else %}Allgemein{% endif %}/{% if correspondent %}{{ correspondent }}{% else %}Allgemein{% endif %}/{{ created_year }}/{{ created }} - {% if document_type %}{{ document_type }} - {% endif %}{{ title }}"</pre>
+    </div>
+    <div class="info-box warning">
+      <p><strong>Wichtig:</strong> <code>tag_name_list</code> verwenden — NICHT <code>tags</code>! (<code>tags</code> ist ein QuerySet, kein String)</p>
+    </div>
+  </div>
+
+  <!-- 9. YAML -->
+  <div class="section" id="yaml">
+    <h2><span class="step-num">9</span> Komplette docker-compose.yml</h2>
+    <p>Speichern als: <code>/volume1/docker/paperless/docker-compose.yml</code></p>
+    <div class="info-box">
+      <p><strong>Anpassen vor dem Start:</strong> <code>user: "UID:GID"</code>, <code>USERMAP_UID</code>, <code>PAPERLESS_ALLOWED_HOSTS</code> und ggf. Pfade und Zeitzone.</p>
+    </div>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre># ══════════════════════════════════════════════════════════════════════════════
+# PAPERLESS-NGX — Docker Compose Setup
+# Synology DS723+ | paperless-ngx 2.20
+# ══════════════════════════════════════════════════════════════════════════════
+#
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │                    ERSTEINRICHTUNG — SCHRITT FÜR SCHRITT                │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+# SCHRITT 1 — ORDNER ERSTELLEN (SSH auf Synology)
+# ─────────────────────────────────────────────────
+# Folgende Ordner müssen VOR dem ersten Start existieren!
+# Alle auf einmal erstellen (SSH):
+#
+#   mkdir -p /volume1/docker/paperless/{redis,db,data,media,export,consume,grafana,prometheus,scripts,backups}
+#
+# ─────────────────────────────────────────────────────────────────────────
+#
+# SCHRITT 2 — GRAFANA BERECHTIGUNG SETZEN (SSH auf Synology)
+# ────────────────────────────────────────────────────────────
+# Grafana läuft intern als User 472 — der braucht Schreibrechte auf den Ordner!
+# Ohne diesen Schritt startet Grafana nicht und wirft Permission-Fehler.
+#
+#   chown -R 472:472 /volume1/docker/paperless/grafana
+#   chmod -R 775 /volume1/docker/paperless/grafana
+#
+# Prüfen ob korrekt gesetzt:
+#   ls -la /volume1/docker/paperless/ | grep grafana
+#   → Ausgabe muss zeigen: drwxrwxr-x  472  472  grafana
+#
+# ─────────────────────────────────────────────────────────────────────────
+#
+# SCHRITT 3 — PROMETHEUS KONFIGURATION ERSTELLEN
+# ────────────────────────────────────────────────
+# Datei erstellen: /volume1/docker/paperless/prometheus/prometheus.yml
+# (DSM → File Station → prometheus Ordner → Neue Datei: prometheus.yml)
+#
+# Inhalt der prometheus.yml:
+#
+#   global:
+#     scrape_interval: 15s
+#   scrape_configs:
+#     - job_name: 'paperless-monitoring'
+#       static_configs:
+#         - targets: ['paperless-redis-exporter:9121']
+#
+# ─────────────────────────────────────────────────────────────────────────
+#
+# SCHRITT 4 — .env DATEI ERSTELLEN
+# ─────────────────────────────────
+# Die .env Datei enthält alle sensiblen Passwörter und Keys.
+# Sie muss im GLEICHEN Ordner wie diese docker-compose.yml liegen!
+#
+# So erstellen (DSM → File Station):
+#   1. File Station öffnen
+#   2. Einstellungen → "Versteckte Dateien anzeigen" aktivieren
+#   3. Navigiere zu: /volume1/docker/paperless/
+#   4. Neue Datei erstellen mit dem Namen: .env  (Punkt am Anfang!)
+#   5. Folgenden Inhalt einfügen und Passwörter anpassen:
+#
+#      POSTGRES_PASSWORD=SICHERES_PASSWORT_HIER
+#      PAPERLESS_DBPASS=GLEICHES_PASSWORT_WIE_OBEN
+#      PAPERLESS_SECRET_KEY=LANGEN_ZUFAELLIGEN_KEY_HIER
+#      GF_SECURITY_ADMIN_PASSWORD=GRAFANA_PASSWORT_HIER
+#
+#   6. Datei speichern
+#
+# Secret Key generieren (SSH):  openssl rand -base64 50
+#
+# ⚠️  PAPERLESS_SECRET_KEY niemals nach erstem Start ändern!
+# ⚠️  .env Datei niemals teilen oder in Git einchecken!
+# ⚠️  POSTGRES_PASSWORD und PAPERLESS_DBPASS müssen identisch sein!
+#
+# ─────────────────────────────────────────────────────────────────────────
+#
+# SCHRITT 5 — DIESE WERTE ANPASSEN (bei neuer Instanz)
+# ──────────────────────────────────────────────────────
+# Suche nach dem Kommentar "← Anpassen bei neuer Instanz" und passe an:
+#
+#   USERMAP_UID / USERMAP_GID
+#     → Synology Benutzer-ID ermitteln:
+#       DSM → Systemsteuerung → Benutzer → Benutzer anklicken → Info
+#       Oder per SSH: id DEINUSERNAME
+#
+#   PAPERLESS_ALLOWED_HOSTS
+#     → Eigene LAN-IP eintragen (DSM → Systemsteuerung → Netzwerk)
+#     → Tailscale-IP falls vorhanden
+#
+#   Volume-Pfade (/volume1/docker/paperless/...)
+#     → Eigenen Speicherpfad anpassen falls abweichend
+#
+#   TZ / PAPERLESS_TIME_ZONE / _JAVA_OPTIONS
+#     → Eigene Zeitzone setzen falls nicht Europe/Berlin
+#     → Zeitzonen-Liste: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+#
+#   PAPERLESS_OCR_LANGUAGE
+#     → Gewünschte OCR-Sprachen setzen
+#     → Sprachcodes: deu=Deutsch, eng=Englisch, fra=Französisch etc.
+#
+# ─────────────────────────────────────────────────────────────────────────
+#
+# SCHRITT 6 — STACK STARTEN
+# ──────────────────────────
+#   DSM → Container Manager → Projekt → docker-compose.yml importieren
+#   Oder per SSH:
+#     cd /volume1/docker/paperless
+#     docker compose up -d
+#
+# ─────────────────────────────────────────────────────────────────────────
+#
+# SCHRITT 7 — NACH DEM ERSTEN START
+# ───────────────────────────────────
+#   Paperless UI:  http://DEINE-IP:8090
+#   Grafana UI:    http://DEINE-IP:3001  (Login: admin / Grafana-Passwort aus .env)
+#
+#   Admin-User anlegen (SSH):
+#     docker exec -it paperless python3 manage.py createsuperuser
+#
+# ─────────────────────────────────────────────────────────────────────────
+#
+# NÜTZLICHE BEFEHLE
+# ──────────────────
+#   Stack neu starten:
+#     docker compose down &amp;&amp; docker compose up -d
+#
+#   Dateien nach Format-Änderung umbenennen:
+#     docker exec -it paperless python3 manage.py document_renamer
+#
+#   Logs anzeigen:
+#     docker compose logs -f paperless
+#
+#   .env korrekt gelesen? (Passwörter prüfen):
+#     docker compose config | grep PASSWORD
+#
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+networks:
+  paperless_network:
+    name: paperless_network  # Interner Netzwerkname für Container-Kommunikation
+    external: false          # Wird von Docker selbst verwaltet, nicht extern
+
+
+services:
+
+  # ============================================================
+  # 1. BROKER — Valkey 9 (Redis-kompatibler Message Broker)
+  #    Verwaltet die Aufgabenwarteschlange zwischen Webserver
+  #    und den Hintergrundprozessen (OCR, Indexierung etc.)
+  # ============================================================
+  broker:
+    container_name: paperless-redis
+    image: valkey/valkey:9                   # Valkey = moderner Redis-Fork, schneller &amp; ressourcenschonender
+    restart: unless-stopped
+    networks:
+      - paperless_network                    # Nur intern erreichbar, kein Port nach außen nötig
+    volumes:
+      - /volume1/docker/paperless/redis:/data                        # ← Pfad anpassen bei neuer Instanz
+      - /usr/share/zoneinfo/Europe/Berlin:/etc/localtime:ro          # ← Zeitzone anpassen bei neuer Instanz
+    environment:
+      TZ: Europe/Berlin                                              # ← Zeitzone anpassen bei neuer Instanz
+    user: "1026:100"                         # ← UID:GID anpassen bei neuer Instanz (id DEINUSERNAME)
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]    # Prüft ob Broker erreichbar ist
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  # ============================================================
+  # 2. DATENBANK — PostgreSQL 18
+  #    Speichert alle Metadaten: Dokumente, Tags, Korrespondenten,
+  #    User, Workflows, Custom Fields etc.
+  # ============================================================
+  db:
+    container_name: paperless-db
+    image: postgres:18
+    restart: unless-stopped
+    networks:
+      - paperless_network                    # Nur intern erreichbar — kein Port nach außen!
+    volumes:
+      - /volume1/docker/paperless/db:/var/lib/postgresql             # ← Pfad anpassen bei neuer Instanz
+      - /usr/share/zoneinfo/Europe/Berlin:/etc/localtime:ro          # ← Zeitzone anpassen bei neuer Instanz
+    environment:
+      POSTGRES_DB: paperless
+      POSTGRES_USER: paperless
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}  # Aus .env Datei
+      TZ: Europe/Berlin                                              # ← Zeitzone anpassen bei neuer Instanz
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U paperless"]  # Prüft ob Datenbank bereit ist
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  # ============================================================
+  # 3. WEBSERVER — Paperless-ngx (Hauptanwendung)
+  #    Die eigentliche Paperless-Anwendung mit Web-UI, API,
+  #    OCR-Verarbeitung und Dokumentenverwaltung.
+  #    Erreichbar unter: http://HOST-IP:8090
+  # ============================================================
+  webserver:
+    container_name: paperless
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.20   # ← Version bei Update anpassen
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy           # Startet erst wenn Datenbank healthy ist
+      broker:
+        condition: service_healthy           # Startet erst wenn Broker healthy ist
+    networks:
+      - paperless_network
+    ports:
+      - 8090:8000                            # ← Host-Port links anpassen falls belegt
+    volumes:
+      - /volume1/docker/paperless/data:/usr/src/paperless/data       # ← Pfade anpassen bei neuer Instanz
+      - /volume1/docker/paperless/media:/usr/src/paperless/media
+      - /volume1/docker/paperless/export:/usr/src/paperless/export
+      - /volume1/docker/paperless/consume:/usr/src/paperless/consume # Eingangsordner für automatische Verarbeitung
+      - /usr/share/zoneinfo/Europe/Berlin:/etc/localtime:ro          # ← Zeitzone anpassen bei neuer Instanz
+    environment:
+      PAPERLESS_REDIS: redis://broker:6379           # Verbindung zum Broker (interner DNS-Name)
+      PAPERLESS_DBHOST: db                           # Verbindung zur Datenbank (interner DNS-Name)
+      PAPERLESS_GOTENBERG_ENDPOINT: http://gotenberg:3000
+      PAPERLESS_DBPASS: ${PAPERLESS_DBPASS}          # Aus .env Datei
+      USERMAP_UID: 1026                              # ← Anpassen bei neuer Instanz (id DEINUSERNAME)
+      USERMAP_GID: 100                               # ← Anpassen bei neuer Instanz
+      PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY}  # Aus .env Datei — niemals nach erstem Start ändern!
+      TZ: Europe/Berlin                                              # ← Zeitzone anpassen bei neuer Instanz
+      PAPERLESS_TIME_ZONE: Europe/Berlin                             # ← Zeitzone anpassen bei neuer Instanz
+      PAPERLESS_OCR_LANGUAGE: deu+eng                # ← Sprachen anpassen bei neuer Instanz
+      PAPERLESS_CONSUMER_RECURSIVE: "true"           # Unterordner im consume-Verzeichnis werden überwacht
+      PAPERLESS_CONSUMER_SUBDIRS_AS_TAGS: "true"     # Unterordner-Name wird automatisch als Tag gesetzt
+
+      # ══════════════════════════════════════════════════════════════
+      # DATEINAMENS-FORMAT VARIANTEN — Übersicht &amp; Vergleich
+      # Sortiert von einfach → komplex
+      # Aktivieren: Gewünschte Zeile einkommentieren, andere auskommentieren
+      # Danach Stack neu starten + Renamer ausführen:
+      # docker exec -it paperless python3 manage.py document_renamer
+      # ══════════════════════════════════════════════════════════════
+      #
+      # ──────────────────────────────────────────────────────────────
+      # OPTION A — Besitzer/Korrespondent/Jahr/Datum - Titel (einfachste)
+      # Empfohlen für die meisten Nutzer — simpel &amp; ohne Paperless navigierbar
+      # ──────────────────────────────────────────────────────────────
+      # Besitzer/
+      # └── Korrespondent/
+      #     └── Jahr/
+      #         └── Datum - Titel.pdf
+      #
+      #PAPERLESS_FILENAME_FORMAT: "{% if owner_username %}{{ owner_username }}{% else %}gemeinsam{% endif %}/{% if correspondent %}{{ correspondent }}{% else %}Allgemein{% endif %}/{{ created_year }}/{{ created }} - {{ title }}"
+      #
+      # ──────────────────────────────────────────────────────────────
+      # OPTION B — Besitzer/Korrespondent/Dokumententyp/Datum - Titel
+      # ──────────────────────────────────────────────────────────────
+      # Besitzer/
+      # └── Korrespondent/
+      #     └── Dokumententyp/
+      #         └── Datum - Titel.pdf
+      #
+      #PAPERLESS_FILENAME_FORMAT: "{% if owner_username %}{{ owner_username }}{% else %}gemeinsam{% endif %}/{% if correspondent %}{{ correspondent }}{% else %}Allgemein{% endif %}/{% if document_type %}{{ document_type }}{% else %}Allgemein{% endif %}/{{ created }} - {{ title }}"
+      #
+      # ──────────────────────────────────────────────────────────────
+      # OPTION C — Besitzer/Korrespondent/Dokumententyp/Jahr/Datum - Titel
+      # ──────────────────────────────────────────────────────────────
+      # Besitzer/
+      # └── Korrespondent/
+      #     └── Dokumententyp/
+      #         └── Jahr/
+      #             └── Datum - Titel.pdf
+      #
+      #PAPERLESS_FILENAME_FORMAT: "{% if owner_username %}{{ owner_username }}{% else %}gemeinsam{% endif %}/{% if correspondent %}{{ correspondent }}{% else %}Allgemein{% endif %}/{% if document_type %}{{ document_type }}{% else %}Allgemein{% endif %}/{{ created_year }}/{{ created }} - {{ title }}"
+      #
+      # ──────────────────────────────────────────────────────────────
+      # OPTION D — Besitzer/Thema/Korrespondent/Jahr/Datum - Typ - Titel (AKTIV)
+      # WICHTIG: tag_name_list verwenden — NICHT tags (tags = QuerySet, kein String!)
+      # Neuen Tag hinzufügen: In Liste unten eintragen + elif Zeile im Format ergänzen
+      # ──────────────────────────────────────────────────────────────
+      # Besitzer/
+      # └── Thema/                    ← Tag als Themenordner
+      #     └── Korrespondent/
+      #         └── Jahr/
+      #             └── Datum - Dokumententyp - Titel.pdf
+      #
+      # Verfügbare Themen-Tags (Reihenfolge = Priorität):
+      # 01. Dokumente    — Urkunden, Ausweise, Pässe
+      # 02. Gemeinde     — Behörden, Ämter, Kommune
+      # 03. Steuer       — Steuererklärung, Bescheide, Finanzamt
+      # 04. Recht        — Verträge, Anwalt, Gerichtspost
+      # 05. Finanzen     — Bank, Kontoauszüge, Investments
+      # 06. Versicherung — Policen, Rechnungen, Schäden
+      # 07. Gesundheit   — Arzt, Krankenhaus, Rezepte
+      # 08. Arbeit       — Arbeitsvertrag, Gehaltsabrechnungen
+      # 09. IT           — Software, Lizenzen, digitale Dienste
+      # 10. Geräte       — Hardware, Garantien, Kaufbelege
+      # 11. Fuhrpark     — Auto, Motorrad, Kfz-Dokumente
+      # 12. Wohnen       — Miete, Mietvertrag, Hausverwaltung
+      # 13. Nebenkosten  — Strom, Gas, Wasser, Heizung
+      # 14. Handwerk     — Reparaturen, Handwerkerrechnungen
+      # 15. Garten       — Gartengeräte, Pflanzen, Dienstleister
+      # 16. Reise        — Urlaub, Buchungen, Tickets
+      # 17. Sport        — Mitgliedschaften, Ausrüstung
+      # 18. Spenden      — Spendenquittungen (steuerlich relevant!)
+      # 19. Kita         — Kindergarten, Betreuung, Gebühren
+      # 20. Schule       — Zeugnisse, Schulbriefe, Anmeldungen
+      # 21. Bildung      — Kurse, Zertifikate, Weiterbildung
+      # 22. Bücher       — Rechnungen, Bestellungen, Lizenzen
+      # 23. Studium      — Uni, Hochschule, BAföG
+      # 24. Pflege       — Pflegegrad, Pflegekasse, Pflegedienst
+      # 25. Rente        — Rentenbescheide, Rentenversicherung
+      # 26. Abos         — Zeitschriften, Streaming, Mitgliedschaften
+      # 27. Haushalt     — Einkauf, Einrichtung, Haushaltsgeräte
+      # --  Allgemein    — Fallback wenn kein Themen-Tag gesetzt
+      #
+      # Beispiele:
+      # Besitzer/Dokumente/Korrespondent/Jahr/Datum - Urkunde - Titel.pdf
+      # Besitzer/Versicherung/Korrespondent/Jahr/Datum - Rechnung - Titel.pdf
+      # Besitzer/Steuer/Korrespondent/Jahr/Datum - Bescheid - Titel.pdf
+      # gemeinsam/Allgemein/Allgemein/Jahr/Datum - Titel.pdf
+      #
+      PAPERLESS_FILENAME_FORMAT: "{% if owner_username %}{{ owner_username }}{% else %}gemeinsam{% endif %}/{% if 'Dokumente' in tag_name_list %}Dokumente{% elif 'Gemeinde' in tag_name_list %}Gemeinde{% elif 'Steuer' in tag_name_list %}Steuer{% elif 'Recht' in tag_name_list %}Recht{% elif 'Finanzen' in tag_name_list %}Finanzen{% elif 'Versicherung' in tag_name_list %}Versicherung{% elif 'Gesundheit' in tag_name_list %}Gesundheit{% elif 'Arbeit' in tag_name_list %}Arbeit{% elif 'IT' in tag_name_list %}IT{% elif 'Geräte' in tag_name_list %}Geräte{% elif 'Fuhrpark' in tag_name_list %}Fuhrpark{% elif 'Wohnen' in tag_name_list %}Wohnen{% elif 'Nebenkosten' in tag_name_list %}Nebenkosten{% elif 'Handwerk' in tag_name_list %}Handwerk{% elif 'Garten' in tag_name_list %}Garten{% elif 'Reise' in tag_name_list %}Reise{% elif 'Sport' in tag_name_list %}Sport{% elif 'Spenden' in tag_name_list %}Spenden{% elif 'Kita' in tag_name_list %}Kita{% elif 'Schule' in tag_name_list %}Schule{% elif 'Bildung' in tag_name_list %}Bildung{% elif 'Bücher' in tag_name_list %}Bücher{% elif 'Studium' in tag_name_list %}Studium{% elif 'Pflege' in tag_name_list %}Pflege{% elif 'Rente' in tag_name_list %}Rente{% elif 'Abos' in tag_name_list %}Abos{% elif 'Haushalt' in tag_name_list %}Haushalt{% else %}Allgemein{% endif %}/{% if correspondent %}{{ correspondent }}{% else %}Allgemein{% endif %}/{{ created_year }}/{{ created }} - {% if document_type %}{{ document_type }} - {% endif %}{{ title }}"
+
+      PAPERLESS_URL: ""                              # ← Bei Reverse Proxy: eigene URL eintragen
+      PAPERLESS_ALLOWED_HOSTS: "localhost,192.168.76.20,100.70.109.58"  # ← Eigene IPs eintragen bei neuer Instanz
+      PAPERLESS_TIKA_ENABLED: 1                      # Tika für Office-Dokumente (Word, Excel etc.)
+      PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://gotenberg:3000/
+      PAPERLESS_TIKA_ENDPOINT: http://tika:9998
+
+
+  # ============================================================
+  # 4. GOTENBERG — PDF-Konvertierung
+  #    Konvertiert Word, Excel, HTML etc. in durchsuchbare PDFs
+  # ============================================================
+  gotenberg:
+    container_name: paperless-gotenberg
+    image: gotenberg/gotenberg:8
+    restart: unless-stopped
+    ports:
+      - "3005:3000"                          # ← Host-Port links anpassen falls belegt
+    networks:
+      - paperless_network
+    volumes:
+      - /usr/share/zoneinfo/Europe/Berlin:/etc/localtime:ro          # ← Zeitzone anpassen bei neuer Instanz
+    environment:
+      CHROMIUM_DISABLE_ROUTES: 1
+      TZ: Europe/Berlin                                              # ← Zeitzone anpassen bei neuer Instanz
+    command:
+      - "gotenberg"
+      - "--chromium-disable-javascript=true"
+      - "--chromium-allow-list=file:///tmp/.*"
+
+
+  # ============================================================
+  # 5. TIKA — Office Dokumenten-Analyse
+  #    Extrahiert Text und Metadaten aus Word, Excel, PowerPoint
+  # ============================================================
+  tika:
+    container_name: paperless-tika
+    image: apache/tika:3.2.3.0
+    restart: unless-stopped
+    networks:
+      - paperless_network
+    volumes:
+      - /usr/share/zoneinfo/Europe/Berlin:/etc/localtime:ro          # ← Zeitzone anpassen bei neuer Instanz
+    environment:
+      - TZ=Europe/Berlin                                             # ← Zeitzone anpassen bei neuer Instanz
+      - OMP_NUM_THREADS=1                    # Begrenzt CPU-Threads — wichtig auf NAS
+      - _JAVA_OPTIONS=-Duser.timezone=Europe/Berlin                  # ← Zeitzone anpassen bei neuer Instanz
+
+
+  # ============================================================
+  # 6. OFELIA — Cron-Job Scheduler
+  #    Überwacht Docker-Labels und führt geplante Aufgaben aus
+  # ============================================================
+  ofelia:
+    image: mcuadros/ofelia:0.3
+    container_name: paperless-ofelia
+    restart: unless-stopped
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /usr/share/zoneinfo/Europe/Berlin:/etc/localtime:ro          # ← Zeitzone anpassen bei neuer Instanz
+    environment:
+      TZ: Europe/Berlin                                              # ← Zeitzone anpassen bei neuer Instanz
+    depends_on:
+      - backup-runner
+    networks:
+      - paperless_network
+
+
+  # ============================================================
+  # 7. BACKUP-RUNNER — Automatisches Backup
+  #    Führt täglich um 20:10 Uhr das Backup-Skript aus
+  #
+  #    EINRICHTUNG — SCHRITT FÜR SCHRITT:
+  #
+  #    A) BACKUP-SKRIPT ERSTELLEN:
+  #       1. DSM → File Station → /volume1/docker/paperless/scripts/
+  #       2. Neue Datei erstellen: backup.sh
+  #       3. Inhalt: siehe beigelegte backup.sh Datei
+  #       4. Ausführbar machen (SSH):
+  #          chmod +x /volume1/docker/paperless/scripts/backup.sh
+  #
+  #    B) BACKUP-ZIELORDNER ERSTELLEN (SSH):
+  #       mkdir -p /volume1/docker/paperless/backups
+  #
+  #    C) BACKUP MANUELL TESTEN (SSH):
+  #       docker exec paperless-backup-runner /bin/bash /scripts/backup.sh
+  #       → Prüfen ob Ordner in /volume1/docker/paperless/backups/ erstellt wurde
+  #       → Prüfen ob paperless-db.sql vorhanden und nicht leer ist
+  #       → Prüfen ob documents/ Ordner gefüllt ist
+  #
+  #    D) LOGS PRÜFEN:
+  #       cat /volume1/docker/paperless/backups/backup.log
+  #
+  #    BACKUP-STRUKTUR:
+  #       /volume1/docker/paperless/backups/
+  #       ├── 2024-03-15_20-10-00/
+  #       │   ├── paperless-db.sql     ← Datenbank-Dump
+  #       │   ├── restore_info.txt     ← Versionsinfos für Restore
+  #       │   └── documents/           ← Alle Dokumente + Manifeste
+  #       ├── 2024-03-16_20-10-00/
+  #       │   └── ...
+  #       ├── latest -&gt; 2024-03-16_20-10-00  ← Symlink auf neuestes Backup
+  #       └── backup.log               ← Alle Backup-Logs
+  #
+  #    ⚠️  Backups älter als 30 Tage werden automatisch gelöscht!
+  #    ⚠️  Backup liegt auf gleicher Disk wie Daten — externes Backup empfohlen!
+  # ============================================================
+  backup-runner:
+    image: alpine:3.15
+    container_name: paperless-backup-runner
+    command: &gt;
+      sh -c "apk add --no-cache bash rsync docker-cli tzdata &amp;&amp; tail -f /dev/null"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /volume1/docker/paperless/scripts/backup.sh:/scripts/backup.sh:ro  # ← Pfad anpassen bei neuer Instanz
+      - /volume1/docker/paperless/export:/paperless_data/export:ro
+      - /volume1/docker/paperless/backups:/backup                           # ← Backup-Ziel anpassen bei neuer Instanz
+      - /usr/share/zoneinfo/Europe/Berlin:/etc/localtime:ro                 # ← Zeitzone anpassen bei neuer Instanz
+    environment:
+      - TZ=Europe/Berlin                                                     # ← Zeitzone anpassen bei neuer Instanz
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.paperless-backup.schedule: "0 10 20 * * *"            # ← Uhrzeit anpassen bei Bedarf
+      ofelia.job-exec.paperless-backup.command: "/bin/bash /scripts/backup.sh"
+    networks:
+      - paperless_network
+
+
+  # ============================================================
+  # 8. REDIS-EXPORTER — Metriken für Prometheus
+  #    Liest Valkey/Redis-Metriken aus für Grafana-Dashboard
+  # ============================================================
+  redis-exporter:
+    container_name: paperless-redis-exporter
+    image: oliver006/redis_exporter:v1.81.0
+    restart: unless-stopped
+    networks:
+      - paperless_network
+    volumes:
+      - /usr/share/zoneinfo/Europe/Berlin:/etc/localtime:ro          # ← Zeitzone anpassen bei neuer Instanz
+    environment:
+      - REDIS_ADDR=redis://broker:6379
+      - TZ=Europe/Berlin                                             # ← Zeitzone anpassen bei neuer Instanz
+
+
+  # ============================================================
+  # 9. GRAFANA — Dashboard &amp; Visualisierung
+  #    Zeigt Prometheus-Metriken grafisch an
+  #    Erreichbar unter: http://HOST-IP:3001
+  #
+  #    EINRICHTUNG — SCHRITT FÜR SCHRITT:
+  #
+  #    A) PROMETHEUS ALS DATENQUELLE HINZUFÜGEN:
+  #       1. Grafana öffnen: http://DEINE-IP:3001
+  #       2. Links im Menü: Connections → Data sources
+  #       3. Oben rechts: "Add new data source"
+  #       4. "Prometheus" auswählen
+  #       5. URL eintragen: http://paperless-prometheus:9090
+  #       6. Ganz unten: "Save &amp; test" klicken
+  #          → Grüne Meldung "Successfully queried" = alles korrekt!
+  #
+  #    B) REDIS DASHBOARD IMPORTIEREN:
+  #       1. Links im Menü: Dashboards → New → Import
+  #       2. Bei "Import via grafana.com" eingeben: 763
+  #       3. "Load" klicken
+  #       4. Bei "Prometheus" die soeben angelegte Datenquelle auswählen
+  #       5. "Import" klicken
+  #          → Dashboard öffnet sich automatisch
+  #
+  #    C) ALS HOME DASHBOARD SETZEN:
+  #       1. Das importierte Dashboard öffnen
+  #       2. Oben rechts auf das Stern-Symbol klicken (als Favorit markieren)
+  #       3. Oben rechts: Eigenes Profil-Icon → Profile
+  #       4. Unter "Preferences" → "Home Dashboard"
+  #       5. Das Redis-Dashboard auswählen → "Save" klicken
+  #          → Ab jetzt öffnet Grafana direkt dieses Dashboard
+  # ============================================================
+  grafana:
+    container_name: paperless-grafana
+    image: grafana/grafana:12.4
+    restart: unless-stopped
+    networks:
+      - paperless_network
+    ports:
+      - "3001:3000"                          # ← Host-Port links anpassen falls belegt
+    volumes:
+      - /volume1/docker/paperless/grafana:/var/lib/grafana           # ← Pfad anpassen bei neuer Instanz
+      - /usr/share/zoneinfo/Europe/Berlin:/etc/localtime:ro          # ← Zeitzone anpassen bei neuer Instanz
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}     # Aus .env Datei
+      - TZ=Europe/Berlin                                             # ← Zeitzone anpassen bei neuer Instanz
+
+
+  # ============================================================
+  # 10. PROMETHEUS — Metriken-Sammler
+  #     Sammelt Daten vom Redis-Exporter, Grafana liest von hier
+  #     Konfiguration: /volume1/docker/paperless/prometheus/prometheus.yml
+  #     (siehe SCHRITT 3 oben!)
+  # ============================================================
+  prometheus:
+    container_name: paperless-prometheus
+    image: prom/prometheus:v3.10.0
+    restart: unless-stopped
+    networks:
+      - paperless_network
+    volumes:
+      - /volume1/docker/paperless/prometheus:/etc/prometheus                   # ← Pfad anpassen bei neuer Instanz
+      - /usr/share/zoneinfo/Europe/Berlin:/etc/localtime:ro                    # ← Zeitzone anpassen bei neuer Instanz
+      - /usr/share/zoneinfo/Europe/Berlin:/usr/share/zoneinfo/Europe/Berlin:ro # Für Go-Anwendungen nötig
+    environment:
+      - TZ=Europe/Berlin                                                        # ← Zeitzone anpassen bei neuer Instanz
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=15d'  # Metriken 15 Tage aufbewahren
+
+</pre>
+    </div>
+  </div>
+
+  <!-- 10. NÜTZLICHE BEFEHLE -->
+  <div class="section" id="nuetzliche-befehle">
+    <h2><span class="step-num">10</span> Nützliche Befehle</h2>
+
+    <h3>Stack neu starten:</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>cd /volume1/docker/paperless &amp;&amp; docker compose down &amp;&amp; docker compose up -d</pre>
+    </div>
+    <h3>Status aller Container:</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>docker compose ps</pre>
+    </div>
+    <h3>Logs anzeigen:</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>docker compose logs -f paperless</pre>
+    </div>
+    <h3>Dateien nach Format-Änderung umbenennen:</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>docker exec -it paperless python3 manage.py document_renamer</pre>
+    </div>
+    <h3>Admin-User anlegen:</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>docker exec -it paperless python3 manage.py createsuperuser</pre>
+    </div>
+    <h3>Backup manuell starten:</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>docker exec paperless-backup-runner /bin/bash /scripts/backup.sh</pre>
+    </div>
+    <h3>Backup Log prüfen:</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>cat /volume1/docker/paperless/backups/backup.log</pre>
+    </div>
+    <h3>Ofelia Logs (Backup-Scheduler):</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>docker logs paperless-ofelia</pre>
+    </div>
+    <h3>Grafana Berechtigung nachträglich setzen:</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+      <pre>chown -R 472:472 /volume1/docker/paperless/grafana &amp;&amp; chmod -R 775 /volume1/docker/paperless/grafana</pre>
+    </div>
+  </div>
+
+
+</div>
+
+<div class="footer">
+  Paperless-ngx Setup Anleitung — Synology NAS · 10 Container · Stand: März 2026 |
+  <a href="https://github.com/paperless-ngx/paperless-ngx" style="color:#4f6ef7;">paperless-ngx</a>
+</div>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.nextElementSibling;
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = "✓ Kopiert!";
+    btn.classList.add("copied");
+    setTimeout(() => { btn.textContent = "Kopieren"; btn.classList.remove("copied"); }, 2000);
+  });
+}
+</script>
+</body>
+</html>
