@@ -163,6 +163,7 @@ backups/
 
 ## 🔗 Links
 
+- [Inspired by- Deployn](https://github.com/deployn)
 - [Paperless-ngx Dokumentation](https://docs.paperless-ngx.com/)
 - [Paperless-ngx GitHub](https://github.com/paperless-ngx/paperless-ngx)
 - [Grafana Redis Dashboard (ID: 763)](https://grafana.com/grafana/dashboards/763)
