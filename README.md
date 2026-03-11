@@ -165,7 +165,7 @@ backups/
 
 - [Inspired by-Deployn](https://github.com/deployn)
 - [Deployn-Blog](https://deployn.de/)
-- [Deployn-Youtube](https://www.youtube.com/watch?v=Xn5a2R1DMbQ))
+- [Deployn-Youtube](https://www.youtube.com/watch?v=Xn5a2R1DMbQ)
 - [Paperless-ngx Dokumentation](https://docs.paperless-ngx.com/)
 - [Paperless-ngx GitHub](https://github.com/paperless-ngx/paperless-ngx)
 - [Grafana Redis Dashboard (ID: 763)](https://grafana.com/grafana/dashboards/763)
