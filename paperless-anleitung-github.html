@@ -1,9 +1,9 @@
-<!DOCTYPE html> 
-<meta name="google-site-verification" content="MNpJihNEcUcYpnHOw16nGBaUiGGEkyVp1ITMqU1p71E" />
+<!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-site-verification" content="MNpJihNEcUcYpnHOw16nGBaUiGGEkyVp1ITMqU1p71E" />
 <title>Paperless-ngx — Synology NAS Setup Anleitung</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -53,6 +53,29 @@
   ol li { margin: 8px 0; }
   .tag { display: inline-block; background: #1e2a45; border: 1px solid #2d3561; border-radius: 4px; padding: 2px 8px; font-size: 0.8em; color: #7eb8f7; margin: 2px; }
   .option-label { display: inline-block; background: #2d3561; color: #fff; border-radius: 6px; padding: 3px 10px; font-size: 0.85em; font-weight: bold; margin-right: 8px; }
+
+  /* ── TAB SYSTEM ── */
+  .tab-group { margin: 15px 0; }
+  .tab-buttons { display: flex; gap: 0; margin-bottom: 0; }
+  .tab-btn { padding: 8px 16px; font-size: 0.85em; font-weight: 600; cursor: pointer; border: 1px solid #2d3561; background: #0f1117; color: #6b7280; border-radius: 8px 8px 0 0; border-bottom: none; transition: all 0.15s; }
+  .tab-btn:hover { color: #e0e0e0; background: #1a1f2e; }
+  .tab-btn.active-gui { background: #1e3a5f; color: #7eb8f7; border-color: #4f6ef7; border-bottom: 1px solid #1e3a5f; }
+  .tab-btn.active-cli { background: #1a2a1a; color: #86efac; border-color: #22c55e; border-bottom: 1px solid #1a2a1a; }
+  .tab-btn .tab-icon { margin-right: 5px; }
+  .tab-pane { display: none; border: 1px solid #2d3561; border-radius: 0 8px 8px 8px; padding: 18px; background: #131820; }
+  .tab-pane.pane-gui { border-color: #4f6ef7; background: #0e1825; }
+  .tab-pane.pane-cli { border-color: #22c55e; background: #0e1a0e; }
+  .tab-pane.active { display: block; }
+  .tab-pane ol { padding-left: 20px; color: #a0aec0; }
+  .tab-pane ol li { margin: 8px 0; }
+  .tab-pane p { color: #a0aec0; margin: 8px 0; }
+  .gui-step { display: flex; align-items: flex-start; gap: 10px; margin: 8px 0; }
+  .gui-step-num { background: #4f6ef7; color: #fff; border-radius: 50%; min-width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: bold; flex-shrink: 0; margin-top: 2px; }
+  .gui-step p { margin: 0; color: #a0aec0; }
+  .gui-path { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+  .gui-path .arrow { color: #4f6ef7; font-weight: bold; margin: 0 2px; }
+  .gui-path code { background: #1e2a45; border: 1px solid #2d3561; }
+  .cli-note { font-size: 0.8em; color: #6b7280; margin-top: 8px; font-style: italic; }
 </style>
 </head>
 <body>
@@ -120,36 +143,78 @@
   <div class="section" id="vorbereitung">
     <h2><span class="step-num">2</span> Vorbereitung — Ordner &amp; Berechtigungen</h2>
 
-    <h3>2.1 Alle Ordner auf einmal erstellen (SSH)</h3>
-    <div class="code-block">
-      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
-      <pre>mkdir -p /volume1/docker/paperless/{redis,db,data,media,export,consume,grafana,prometheus,scripts,backups}</pre>
+    <h3>2.1 Alle Ordner erstellen</h3>
+    <div class="tab-group">
+      <div class="tab-buttons">
+        <button class="tab-btn active-gui" onclick="switchTab(this,'tab-ordner-gui')"><span class="tab-icon">🖥️</span> DSM GUI</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-ordner-cli')"><span class="tab-icon">💻</span> SSH</button>
+      </div>
+      <div id="tab-ordner-gui" class="tab-pane pane-gui active">
+        <div class="gui-step"><span class="gui-step-num">1</span><p>File Station öffnen</p></div>
+        <div class="gui-step"><span class="gui-step-num">2</span><p>Navigiere zu <code>/volume1/docker/</code></p></div>
+        <div class="gui-step"><span class="gui-step-num">3</span><p>Neuen Ordner <code>paperless</code> erstellen</p></div>
+        <div class="gui-step"><span class="gui-step-num">4</span><p>Darin folgende Unterordner einzeln erstellen: <code>redis</code>, <code>db</code>, <code>data</code>, <code>media</code>, <code>export</code>, <code>consume</code>, <code>grafana</code>, <code>prometheus</code>, <code>scripts</code>, <code>backups</code></p></div>
+        <p class="cli-note">💡 Tipp: SSH ist hier deutlich schneller — ein Befehl erstellt alle Ordner auf einmal.</p>
+      </div>
+      <div id="tab-ordner-cli" class="tab-pane pane-cli">
+        <p>Alle Ordner auf einmal erstellen:</p>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+          <pre>mkdir -p /volume1/docker/paperless/{redis,db,data,media,export,consume,grafana,prometheus,scripts,backups}</pre>
+        </div>
+      </div>
     </div>
 
     <h3>2.2 Grafana Berechtigung setzen</h3>
     <p>Grafana läuft intern als User <code>472</code> — ohne diesen Schritt startet Grafana nicht und wirft Permission-Fehler!</p>
-    <div class="code-block">
-      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
-      <pre>chown -R 472:472 /volume1/docker/paperless/grafana
+    <div class="tab-group">
+      <div class="tab-buttons">
+        <button class="tab-btn active-gui" onclick="switchTab(this,'tab-grafana-gui')"><span class="tab-icon">🖥️</span> DSM GUI</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-grafana-cli')"><span class="tab-icon">💻</span> SSH</button>
+      </div>
+      <div id="tab-grafana-gui" class="tab-pane pane-gui active">
+        <div class="gui-step"><span class="gui-step-num">1</span><p>File Station öffnen → <code>/volume1/docker/paperless/</code> navigieren</p></div>
+        <div class="gui-step"><span class="gui-step-num">2</span><p>Rechtsklick auf den Ordner <code>grafana</code> → <strong>Eigenschaften</strong></p></div>
+        <div class="gui-step"><span class="gui-step-num">3</span><p>Tab <strong>Berechtigung</strong> → bei Eigentümer auf <code>472</code> setzen → <strong>Übernehmen</strong></p></div>
+        <div class="gui-step"><span class="gui-step-num">4</span><p>Alle Berechtigungen auf <strong>Lesen/Schreiben/Ausführen</strong> setzen → <strong>Fertig</strong></p></div>
+        <p class="cli-note">💡 SSH ist hier zuverlässiger — die GUI setzt manchmal nicht alle Unterordner-Rechte korrekt.</p>
+      </div>
+      <div id="tab-grafana-cli" class="tab-pane pane-cli">
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+          <pre>chown -R 472:472 /volume1/docker/paperless/grafana
 chmod -R 775 /volume1/docker/paperless/grafana</pre>
-    </div>
-    <p>Prüfen ob korrekt gesetzt:</p>
-    <div class="code-block">
-      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
-      <pre>ls -la /volume1/docker/paperless/ | grep grafana</pre>
-    </div>
-    <div class="info-box success">
-      <p><strong>Erwartete Ausgabe:</strong> <code>drwxrwxr-x  472  472  grafana</code></p>
+        </div>
+        <p>Prüfen ob korrekt gesetzt:</p>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+          <pre>ls -la /volume1/docker/paperless/ | grep grafana</pre>
+        </div>
+        <div class="info-box success">
+          <p><strong>Erwartete Ausgabe:</strong> <code>drwxrwxr-x  472  472  grafana</code></p>
+        </div>
+      </div>
     </div>
 
     <h3>2.3 Eigene UID ermitteln</h3>
     <p>Diese UID muss in der <code>docker-compose.yml</code> bei <code>user:</code> und <code>USERMAP_UID</code> eingetragen werden.</p>
-    <div class="code-block">
-      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
-      <pre>id DEINUSERNAME</pre>
-    </div>
-    <div class="info-box warning">
-      <p><strong>DSM → Systemsteuerung → Benutzer → Benutzer anklicken → Info</strong> zeigt ebenfalls die UID.</p>
+    <div class="tab-group">
+      <div class="tab-buttons">
+        <button class="tab-btn active-gui" onclick="switchTab(this,'tab-uid-gui')"><span class="tab-icon">🖥️</span> DSM GUI</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-uid-cli')"><span class="tab-icon">💻</span> SSH</button>
+      </div>
+      <div id="tab-uid-gui" class="tab-pane pane-gui active">
+        <div class="gui-step"><span class="gui-step-num">1</span><p><span class="gui-path"><code>DSM</code><span class="arrow">→</span><code>Systemsteuerung</code><span class="arrow">→</span><code>Benutzer &amp; Gruppe</code></span></p></div>
+        <div class="gui-step"><span class="gui-step-num">2</span><p>Tab <strong>Benutzer</strong> → Deinen Benutzer anklicken → <strong>Bearbeiten</strong></p></div>
+        <div class="gui-step"><span class="gui-step-num">3</span><p>Die angezeigte <strong>UID</strong> notieren — diese in die docker-compose.yml eintragen</p></div>
+      </div>
+      <div id="tab-uid-cli" class="tab-pane pane-cli">
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+          <pre>id DEINUSERNAME</pre>
+        </div>
+        <p>Ausgabe z.B.: <code>uid=1026(deinname) gid=100(users)</code> → UID ist <code>1026</code>, GID ist <code>100</code></p>
+      </div>
     </div>
   </div>
 
@@ -157,15 +222,40 @@ chmod -R 775 /volume1/docker/paperless/grafana</pre>
   <div class="section" id="prometheus-config">
     <h2><span class="step-num">3</span> Prometheus Konfiguration erstellen</h2>
     <p>Datei erstellen: <code>/volume1/docker/paperless/prometheus/prometheus.yml</code></p>
-    <p>DSM → File Station → <code>prometheus</code> Ordner → Neue Datei: <code>prometheus.yml</code></p>
-    <div class="code-block">
-      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
-      <pre>global:
+    <div class="tab-group">
+      <div class="tab-buttons">
+        <button class="tab-btn active-gui" onclick="switchTab(this,'tab-prom-gui')"><span class="tab-icon">🖥️</span> DSM GUI</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-prom-cli')"><span class="tab-icon">💻</span> SSH</button>
+      </div>
+      <div id="tab-prom-gui" class="tab-pane pane-gui active">
+        <div class="gui-step"><span class="gui-step-num">1</span><p>File Station öffnen → <code>/volume1/docker/paperless/prometheus/</code> navigieren</p></div>
+        <div class="gui-step"><span class="gui-step-num">2</span><p><strong>Erstellen → Neue Datei</strong> → Name: <code>prometheus.yml</code></p></div>
+        <div class="gui-step"><span class="gui-step-num">3</span><p>Datei mit Rechtsklick öffnen → <strong>Text Editor öffnen mit</strong> → <strong>Text Editor</strong></p></div>
+        <div class="gui-step"><span class="gui-step-num">4</span><p>Folgenden Inhalt einfügen und speichern:</p></div>
+        <p class="cli-note">💡 Text Editor muss einmalig im <strong>Paket-Zentrum</strong> installiert werden falls noch nicht vorhanden.</p>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+          <pre>global:
   scrape_interval: 15s
 scrape_configs:
   - job_name: 'paperless-monitoring'
     static_configs:
       - targets: ['paperless-redis-exporter:9121']</pre>
+        </div>
+      </div>
+      <div id="tab-prom-cli" class="tab-pane pane-cli">
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+          <pre>cat > /volume1/docker/paperless/prometheus/prometheus.yml << 'EOF'
+global:
+  scrape_interval: 15s
+scrape_configs:
+  - job_name: 'paperless-monitoring'
+    static_configs:
+      - targets: ['paperless-redis-exporter:9121']
+EOF</pre>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -173,31 +263,47 @@ scrape_configs:
   <div class="section" id="env">
     <h2><span class="step-num">4</span> .env Datei erstellen</h2>
     <p>Die <code>.env</code> Datei muss im <strong>gleichen Ordner</strong> wie die <code>docker-compose.yml</code> liegen: <code>/volume1/docker/paperless/.env</code></p>
-    <div class="info-box warning">
-      <p><strong>DSM → File Station:</strong> Einstellungen → "Versteckte Dateien anzeigen" aktivieren, dann neue Datei <code>.env</code> (Punkt am Anfang!) erstellen.</p>
-    </div>
-    <h3>Inhalt der .env Datei:</h3>
-    <div class="code-block">
-      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
-      <pre>POSTGRES_PASSWORD=SICHERES_PASSWORT_HIER
+    <div class="tab-group">
+      <div class="tab-buttons">
+        <button class="tab-btn active-gui" onclick="switchTab(this,'tab-env-gui')"><span class="tab-icon">🖥️</span> DSM GUI</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-env-cli')"><span class="tab-icon">💻</span> SSH</button>
+      </div>
+      <div id="tab-env-gui" class="tab-pane pane-gui active">
+        <div class="gui-step"><span class="gui-step-num">1</span><p>File Station öffnen → oben rechts <strong>Einstellungen</strong> → <strong>"Versteckte Dateien anzeigen"</strong> aktivieren</p></div>
+        <div class="gui-step"><span class="gui-step-num">2</span><p>Navigiere zu <code>/volume1/docker/paperless/</code></p></div>
+        <div class="gui-step"><span class="gui-step-num">3</span><p><strong>Erstellen → Neue Datei</strong> → Name: <code>.env</code> (Punkt am Anfang!)</p></div>
+        <div class="gui-step"><span class="gui-step-num">4</span><p>Datei mit Rechtsklick öffnen → <strong>Öffnen mit</strong> → <strong>Text Editor</strong> → Inhalt einfügen und speichern:</p></div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+          <pre>POSTGRES_PASSWORD=SICHERES_PASSWORT_HIER
 PAPERLESS_DBPASS=GLEICHES_PASSWORT_WIE_OBEN
 PAPERLESS_SECRET_KEY=LANGEN_ZUFAELLIGEN_KEY_HIER
 GF_SECURITY_ADMIN_PASSWORD=GRAFANA_PASSWORT_HIER</pre>
-    </div>
-    <h3>Secret Key generieren (SSH):</h3>
-    <div class="code-block">
-      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
-      <pre>openssl rand -base64 50</pre>
+        </div>
+        <p class="cli-note">💡 Secret Key per SSH generieren: <code>openssl rand -base64 50</code> — dann in die .env einfügen</p>
+      </div>
+      <div id="tab-env-cli" class="tab-pane pane-cli">
+        <p>Secret Key generieren:</p>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+          <pre>openssl rand -base64 50</pre>
+        </div>
+        <p>.env Datei erstellen:</p>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+          <pre>nano /volume1/docker/paperless/.env</pre>
+        </div>
+        <p>.env korrekt gelesen prüfen:</p>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+          <pre>docker compose config | grep PASSWORD</pre>
+        </div>
+      </div>
     </div>
     <div class="info-box danger">
       <p><strong>⚠️ PAPERLESS_SECRET_KEY</strong> niemals nach erstem Start ändern!</p>
       <p><strong>⚠️ POSTGRES_PASSWORD</strong> und <strong>PAPERLESS_DBPASS</strong> müssen identisch sein!</p>
       <p><strong>⚠️ .env Datei</strong> niemals teilen oder in Git einchecken!</p>
-    </div>
-    <h3>.env korrekt gelesen prüfen:</h3>
-    <div class="code-block">
-      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
-      <pre>docker compose config | grep PASSWORD</pre>
     </div>
   </div>
 
@@ -205,6 +311,37 @@ GF_SECURITY_ADMIN_PASSWORD=GRAFANA_PASSWORT_HIER</pre>
   <div class="section" id="backup">
     <h2><span class="step-num">5</span> Backup-Skript erstellen</h2>
     <p>Datei erstellen: <code>/volume1/docker/paperless/scripts/backup.sh</code></p>
+    <div class="tab-group">
+      <div class="tab-buttons">
+        <button class="tab-btn active-gui" onclick="switchTab(this,'tab-backup-gui')"><span class="tab-icon">🖥️</span> DSM GUI</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-backup-cli')"><span class="tab-icon">💻</span> SSH</button>
+      </div>
+      <div id="tab-backup-gui" class="tab-pane pane-gui active">
+        <div class="gui-step"><span class="gui-step-num">1</span><p>File Station → <code>/volume1/docker/paperless/scripts/</code> navigieren</p></div>
+        <div class="gui-step"><span class="gui-step-num">2</span><p><strong>Erstellen → Neue Datei</strong> → Name: <code>backup.sh</code></p></div>
+        <div class="gui-step"><span class="gui-step-num">3</span><p>Rechtsklick auf <code>backup.sh</code> → <strong>Öffnen mit</strong> → <strong>Text Editor</strong> → Inhalt unten einfügen → Speichern</p></div>
+        <div class="gui-step"><span class="gui-step-num">4</span><p>Ausführbar machen: Rechtsklick → <strong>Eigenschaften</strong> → Tab <strong>Berechtigung</strong> → bei Eigentümer <strong>"Ausführen"</strong> aktivieren → <strong>Übernehmen</strong></p></div>
+        <p class="cli-note">⚠️ Die GUI setzt das "Ausführbar"-Bit manchmal nicht korrekt. SSH-Befehl zur Sicherheit empfohlen: <code>chmod +x /volume1/docker/paperless/scripts/backup.sh</code></p>
+      </div>
+      <div id="tab-backup-cli" class="tab-pane pane-cli">
+        <p>Skript erstellen und ausführbar machen:</p>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+          <pre>chmod +x /volume1/docker/paperless/scripts/backup.sh</pre>
+        </div>
+        <p>Backup manuell testen:</p>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+          <pre>docker exec paperless-backup-runner /bin/bash /scripts/backup.sh</pre>
+        </div>
+        <p>Backup Log prüfen:</p>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+          <pre>cat /volume1/docker/paperless/backups/backup.log</pre>
+        </div>
+      </div>
+    </div>
+    <h3>Inhalt der backup.sh:</h3>
     <div class="code-block">
       <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
       <pre>#!/bin/bash
@@ -272,23 +409,7 @@ echo "Lösche Backups älter als ${RETENTION_DAYS} Tage..."
 find "${BACKUP_BASE_DIR}" -maxdepth 1 -type d -not -name "latest" -mtime +${RETENTION_DAYS} -exec rm -rf {} \; || true
 
 echo "--- Backup Fertig: $(date) ---"
-
 </pre>
-    </div>
-    <h3>Ausführbar machen (SSH):</h3>
-    <div class="code-block">
-      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
-      <pre>chmod +x /volume1/docker/paperless/scripts/backup.sh</pre>
-    </div>
-    <h3>Backup manuell testen:</h3>
-    <div class="code-block">
-      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
-      <pre>docker exec paperless-backup-runner /bin/bash /scripts/backup.sh</pre>
-    </div>
-    <h3>Backup Log prüfen:</h3>
-    <div class="code-block">
-      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
-      <pre>cat /volume1/docker/paperless/backups/backup.log</pre>
     </div>
     <h3>Backup-Struktur:</h3>
     <div class="code-block">
@@ -308,28 +429,66 @@ echo "--- Backup Fertig: $(date) ---"
     </div>
   </div>
 
+
   <!-- 6. STACK STARTEN -->
   <div class="section" id="stack-starten">
     <h2><span class="step-num">6</span> Stack starten &amp; prüfen</h2>
+
     <h3>Stack starten:</h3>
-    <div class="code-block">
-      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
-      <pre>cd /volume1/docker/paperless
+    <div class="tab-group">
+      <div class="tab-buttons">
+        <button class="tab-btn active-gui" onclick="switchTab(this,'tab-stack-gui')"><span class="tab-icon">🖥️</span> DSM GUI</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-stack-cli')"><span class="tab-icon">💻</span> SSH</button>
+      </div>
+      <div id="tab-stack-gui" class="tab-pane pane-gui active">
+        <div class="gui-step"><span class="gui-step-num">1</span><p><span class="gui-path"><code>DSM</code><span class="arrow">→</span><code>Container Manager</code><span class="arrow">→</span><code>Projekt</code></span></p></div>
+        <div class="gui-step"><span class="gui-step-num">2</span><p><strong>Erstellen</strong> klicken → Projektname: <code>paperless</code></p></div>
+        <div class="gui-step"><span class="gui-step-num">3</span><p>Pfad: <code>/volume1/docker/paperless</code> auswählen</p></div>
+        <div class="gui-step"><span class="gui-step-num">4</span><p>Die <code>docker-compose.yml</code> wird automatisch erkannt → <strong>Weiter</strong></p></div>
+        <div class="gui-step"><span class="gui-step-num">5</span><p><strong>Erstellen</strong> → Container Manager startet alle 10 Container automatisch</p></div>
+        <div class="gui-step"><span class="gui-step-num">6</span><p>Status prüfen: Im Projekt alle Container sollten grün <strong>"Wird ausgeführt"</strong> zeigen</p></div>
+      </div>
+      <div id="tab-stack-cli" class="tab-pane pane-cli">
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+          <pre>cd /volume1/docker/paperless
 docker compose up -d</pre>
+        </div>
+        <p>Status prüfen:</p>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+          <pre>docker compose ps</pre>
+        </div>
+        <div class="info-box success">
+          <p><strong>Alle Container sollten "running" zeigen.</strong> <code>db</code> und <code>broker</code> zeigen zusätzlich "(healthy)".</p>
+        </div>
+      </div>
     </div>
-    <h3>Status prüfen:</h3>
-    <div class="code-block">
-      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
-      <pre>docker compose ps</pre>
-    </div>
-    <div class="info-box success">
-      <p><strong>Alle Container sollten "running" zeigen.</strong> <code>db</code> und <code>broker</code> zeigen zusätzlich "(healthy)".</p>
-    </div>
+
     <h3>Admin-User anlegen:</h3>
-    <div class="code-block">
-      <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
-      <pre>docker exec -it paperless python3 manage.py createsuperuser</pre>
+    <div class="tab-group">
+      <div class="tab-buttons">
+        <button class="tab-btn active-gui" onclick="switchTab(this,'tab-admin-gui')"><span class="tab-icon">🖥️</span> DSM GUI</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-admin-cli')"><span class="tab-icon">💻</span> SSH</button>
+      </div>
+      <div id="tab-admin-gui" class="tab-pane pane-gui active">
+        <div class="gui-step"><span class="gui-step-num">1</span><p><span class="gui-path"><code>Container Manager</code><span class="arrow">→</span><code>Projekt paperless</code><span class="arrow">→</span><code>Container paperless</code></span></p></div>
+        <div class="gui-step"><span class="gui-step-num">2</span><p>Container anklicken → Tab <strong>Terminal &amp; Protokoll</strong></p></div>
+        <div class="gui-step"><span class="gui-step-num">3</span><p><strong>Terminal erstellen</strong> → Shell öffnet sich</p></div>
+        <div class="gui-step"><span class="gui-step-num">4</span><p>Befehl eingeben:</p></div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+          <pre>python3 manage.py createsuperuser</pre>
+        </div>
+      </div>
+      <div id="tab-admin-cli" class="tab-pane pane-cli">
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+          <pre>docker exec -it paperless python3 manage.py createsuperuser</pre>
+        </div>
+      </div>
     </div>
+
     <div class="table-wrap" style="margin-top:15px;">
       <table>
         <tr><th>Service</th><th>URL</th></tr>
@@ -1046,6 +1205,15 @@ function copyCode(btn) {
     btn.classList.add("copied");
     setTimeout(() => { btn.textContent = "Kopieren"; btn.classList.remove("copied"); }, 2000);
   });
+}
+
+function switchTab(btn, paneId) {
+  const tabGroup = btn.closest('.tab-group');
+  tabGroup.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-gui', 'active-cli'));
+  tabGroup.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  const isGui = paneId.includes('-gui');
+  btn.classList.add(isGui ? 'active-gui' : 'active-cli');
+  document.getElementById(paneId).classList.add('active');
 }
 </script>
 </body>
