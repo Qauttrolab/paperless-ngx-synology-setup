@@ -445,6 +445,7 @@ services:
       ofelia.enabled: "true"
       ofelia.job-exec.paperless-backup.schedule: "0 10 20 * * *"            # ← Uhrzeit anpassen bei Bedarf
       ofelia.job-exec.paperless-backup.command: "/bin/bash /scripts/backup.sh"
+      ofelia.job-exec.paperless-backup.container: "paperless-backup-runner"  # Ziel-Container — verhindert Fehler bei langsamem Start
     networks:
       - paperless_network
 
