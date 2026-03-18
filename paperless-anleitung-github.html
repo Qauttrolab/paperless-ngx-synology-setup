@@ -799,7 +799,7 @@ services:
   # ============================================================
   webserver:
     container_name: paperless
-    image: ghcr.io/paperless-ngx/paperless-ngx:2.20   # ← Version bei Update anpassen
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.20.11   # ← Version bei Update anpassen
     restart: unless-stopped
     depends_on:
       db:
