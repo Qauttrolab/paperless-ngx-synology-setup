@@ -20,7 +20,7 @@ Vollständige, deutschsprachige Setup-Anleitung für **Paperless-ngx** auf einem
 |---|---|---|---|---|
 | 1 | `paperless-redis` | valkey/valkey:9 | intern | Message Broker |
 | 2 | `paperless-db` | postgres:18 | intern | Datenbank |
-| 3 | `paperless` | paperless-ngx:2.20 | 8090 | Hauptanwendung |
+| 3 | `paperless` | paperless-ngx:2.20.11 | 8090 | Hauptanwendung |
 | 4 | `paperless-gotenberg` | gotenberg:8 | 3005 | PDF-Konvertierung |
 | 5 | `paperless-tika` | apache/tika:3.2.3.0 | intern | Office Dokumente |
 | 6 | `paperless-ofelia` | mcuadros/ofelia:0.3 | intern | Cron-Job Scheduler |
