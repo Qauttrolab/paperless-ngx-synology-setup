@@ -326,6 +326,9 @@ services:
       PAPERLESS_TIKA_ENABLED: 1                      # Tika für Office-Dokumente (Word, Excel etc.)
       PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://gotenberg:3000/
       PAPERLESS_TIKA_ENDPOINT: http://tika:9998
+      #PAPERLESS_TASK_WORKERS: 2       # Anzahl paralleler Job-Worker — 2 verarbeitet zwei Dokumente gleichzeitig
+      #PAPERLESS_THREADS_PER_WORKER: 2 # CPU-Threads pro Worker — 2 = schnellere OCR pro Dokument
+      #OMP_NUM_THREADS: 2              # OpenMP Threads für OCR-Engine — auf 2 erhöht (war 1 bei Tika)
 
 
   # ============================================================
